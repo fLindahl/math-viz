@@ -314,6 +314,54 @@ bool MainGameUpdate(float elapsedTime)
 
         break;
     }
+    case 6:
+    {
+        Play::Window::SetTitle("Vector translation");
+
+        static std::vector<Vector2f> points = {
+            {-10, 10}, {10, 10},
+            {-6, 6}, {6, 6},
+            {-10, 0}, {10, 0},
+            {-8, -6}, {8, -6},
+            {-8, -10}, {8, -10},
+            {-4, 4}, {4, 4},
+            {4, -4}, {-4, -4}
+        };
+
+        static Vector2f translation = { 0,0 };
+        if (Play::KeyDown(KEY_LEFT)) translation.x -= 1.0f;
+        if (Play::KeyDown(KEY_RIGHT)) translation.x += 1.0f;
+        if (Play::KeyDown(KEY_UP)) translation.y += 1.0f;
+        if (Play::KeyDown(KEY_DOWN)) translation.y -= 1.0f;
+
+        static bool showTranslation = false;
+        if (Play::KeyPressed(KEY_SPACE)) showTranslation = !showTranslation;
+
+        if (showTranslation)
+        {
+            for (Vector2f point : points)
+            {
+                point += center; // change frame of reference (move origin)
+                Play::DrawLine(point, point + translation, Play::cGrey);
+                Play::DrawCircle(point, 1, Play::cGrey);
+            }
+        }
+
+        for (Vector2f point : points) // creates a copy of each point
+        {
+            point += center; // change frame of reference
+            point += translation; // move the copied point
+            Play::DrawCircle(point, 1, Play::cGreen);
+        }
+
+        std::string translationStr = "translation = [" 
+            + std::to_string(translation.x) + ", " 
+            + std::to_string(translation.y)
+            + "]";
+        Play::DrawDebugText({ 2, 8 }, translationStr.c_str(), Play::cWhite, false);
+
+        break;
+    }
     case -1:
         exampleId = 0; // Set this to last example to be able to loop backwards
         break;
