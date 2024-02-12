@@ -2,8 +2,8 @@
 #define PLAY_USING_GAMEOBJECT_MANAGER
 #include "Play.h"
 
-int DISPLAY_WIDTH = 256;
-int DISPLAY_HEIGHT = 256;
+int DISPLAY_WIDTH = 360;
+int DISPLAY_HEIGHT = 360;
 int DISPLAY_SCALE = 4;
 
 void MainGameEntry(PLAY_IGNORE_COMMAND_LINE)
@@ -36,6 +36,112 @@ bool MainGameUpdate(float elapsedTime)
     {
     case 0:
     {
+        Play::Window::SetTitle("Sine and Cosine");
+
+        static float radians = 0;
+
+        static bool paused = false;
+        if (!paused)
+        {
+            radians += Play::DegToRad(1);
+        }
+        if (Play::KeyPressed(KEY_P))
+        {
+            paused = !paused;
+        }
+
+        Play::DrawCircle(center, unitLength, { 20.0f, 20.0f, 20.0f });
+
+        Play::DrawLine({ 0, center.y }, { DISPLAY_WIDTH, center.y }, Play::cGrey);
+        Play::DrawLine({ center.x, 0 }, { center.x, DISPLAY_HEIGHT }, Play::cGrey);
+        
+        Play::DrawPixel(center, { 30.0f, 30.0f, 30.0f });
+
+        float c = center.x + cosf(radians) * unitLength;
+        float s = center.y + sinf(radians) * unitLength;
+
+        Play::DrawCircle({c, center.y}, 4, Play::cRed);
+        Play::DrawCircle({center.x, s}, 4, Play::cGreen);
+
+        static bool showPointOnCircle = false;
+        if (Play::KeyPressed(KEY_SPACE))
+        {
+            showPointOnCircle = !showPointOnCircle;
+        }
+        if (showPointOnCircle)
+        {
+            Play::DrawLine(center, { c, s }, Play::cBlue);
+        }
+
+        std::string degText = "Deg    = " + std::to_string(((int)Play::RadToDeg(radians) % 360));
+        std::string radText = "R      = " + std::to_string(radians);
+        std::string sinText = "sin(R) = " + std::to_string(sinf(radians));
+        std::string cosText = "cos(R) = " + std::to_string(cosf(radians));
+        Play::DrawDebugText({ 2, 8 }, sinText.c_str(), Play::cGreen, false);
+        Play::DrawDebugText({ 2, 22 }, cosText.c_str(), Play::cRed, false);
+        Play::DrawDebugText({ 2, 36 }, radText.c_str(), Play::cBlue, false);
+        Play::DrawDebugText({ 2, 50 }, degText.c_str(), Play::cWhite, false);
+
+        Play::DrawDebugText({ 2, DISPLAY_HEIGHT - 10 }, "<P> to pause", Play::cWhite, false);
+        Play::DrawDebugText({ 2, DISPLAY_HEIGHT - 26 }, "<SPACE> to show R vector", Play::cWhite, false);
+
+        break;
+    }
+    case 1:
+    {
+        Play::Window::SetTitle("Sinewave");
+
+        static float radians = 0;
+
+        static bool paused = false;
+        if (!paused)
+        {
+            radians += Play::DegToRad(2);
+        }
+        if (Play::KeyPressed(KEY_P))
+        {
+            paused = !paused;
+        }
+
+        Play::DrawCircle(center, unitLength, { 20.0f, 20.0f, 20.0f });
+
+        Play::DrawLine({ 0, center.y }, { DISPLAY_WIDTH, center.y }, Play::cGrey);
+        Play::DrawLine({ center.x, 0 }, { center.x, DISPLAY_HEIGHT }, Play::cGrey);
+
+        Play::DrawPixel(center, { 30.0f, 30.0f, 30.0f });
+
+        float s = center.y + sinf(radians) * unitLength;
+
+        static std::vector<Point2D> points;
+
+        Vector2f newPoint = { center.x, s };
+        Play::DrawCircle(newPoint, 4, Play::cGreen);
+
+        if (!paused)
+            points.push_back(newPoint);
+
+        if (points.size() > DISPLAY_WIDTH / 2)
+            points.erase(points.begin());
+
+        for (auto& point : points)
+        {
+            point.x -= 1 * (int)(!paused); // only scroll if not paused
+            Play::DrawPixel(point, Play::cGreen);
+        }
+
+        std::string degText = "Deg    = " + std::to_string(((int)Play::RadToDeg(radians) % 360));
+        std::string radText = "R      = " + std::to_string(radians);
+        std::string sinText = "sin(R) = " + std::to_string(sinf(radians));
+        Play::DrawDebugText({ 2, 8 }, sinText.c_str(), Play::cGreen, false);
+        Play::DrawDebugText({ 2, 22 }, radText.c_str(), Play::cBlue, false);
+        Play::DrawDebugText({ 2, 36 }, degText.c_str(), Play::cWhite, false);
+
+        Play::DrawDebugText({ 2, DISPLAY_HEIGHT - 10 }, "<P> to pause", Play::cWhite, false);
+
+        break;
+    }
+    case 2:
+    {
         Play::Window::SetTitle("Rotating X and Y axis");
         static float totalTime = 0;
         totalTime += elapsedTime;
@@ -50,7 +156,7 @@ bool MainGameUpdate(float elapsedTime)
         Play::DrawDebugText(end, "y");
         break;
     }
-    case 1:
+    case 3:
     {
         Play::Window::SetTitle("Drawing a grid and random points");
         
@@ -102,7 +208,7 @@ bool MainGameUpdate(float elapsedTime)
 
         break;
     }
-    case 2:
+    case 4:
     {
         Play::Window::SetTitle("Vector length");
 
@@ -148,7 +254,7 @@ bool MainGameUpdate(float elapsedTime)
 
         break;
     }
-    case 3:
+    case 5:
     {
         Play::Window::SetTitle("Dot product");
 
